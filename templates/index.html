@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>AgroScan Pro | Зелёный доктор</title>
+  <!-- Font Awesome 6 для иконок -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #2e7d32;
+      --primary-dark: #1b5e20;
+      --primary-light: #4caf50;
+      --accent: #81c784;
+      --bg-light: #f1f8e9;
+      --text-dark: #1e293b;
+      --text-soft: #475569;
+      --white: #ffffff;
+      --card-bg: #ffffff;
+      --border-radius: 20px;
+      --shadow-sm: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+      --shadow-md: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+      --shadow-lg: 0 25px 30px -12px rgba(0, 0, 0, 0.15);
+      --transition: all 0.3s ease;
+    }
+
+    body {
+      font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+      background-color: #f9fafb;
+      color: var(--text-dark);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* header / навигация */
+    .header {
+      background: var(--white);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      backdrop-filter: blur(8px);
+      background: rgba(255,255,255,0.92);
+    }
+
+    .header .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.6rem;
+      color: var(--primary-dark);
+      letter-spacing: -0.5px;
+    }
+
+    .logo i {
+      font-size: 2rem;
+      color: var(--primary);
+      background: #e8f5e9;
+      padding: 8px;
+      border-radius: 14px;
+    }
+
+    .logo span {
+      font-weight: 400;
+      font-size: 0.9rem;
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 4px 10px;
+      border-radius: 40px;
+      margin-left: 6px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-weight: 500;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-soft);
+      transition: var(--transition);
+      position: relative;
+      font-size: 1rem;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .nav-links a.active {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 18px rgba(46,125,50,0.2);
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: #256b28;
+      transform: translateY(-2px);
+      box-shadow: 0 14px 22px rgba(46,125,50,0.3);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      box-shadow: none;
+    }
+
+    .btn-outline:hover {
+      background: #e8f5e9;
+    }
+
+    /* hero */
+    .hero {
+      padding: 48px 0 40px;
+      background: linear-gradient(135deg, #f1f8e9 0%, #ffffff 100%);
+    }
+
+    .hero .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .hero-text {
+      flex: 1 1 400px;
+    }
+
+    .hero-badge {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 6px 18px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.2;
+      color: #0a2e0f;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero h1 i {
+      color: #2e7d32;
+      margin-right: 6px;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: #334155;
+      margin-bottom: 28px;
+      max-width: 550px;
+    }
+
+    .hero-image {
+      flex: 1 1 350px;
+      background: #d0e6d2;
+      border-radius: 40px;
+      padding: 20px 20px 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      background: radial-gradient(circle at 30% 10%, #c8e6c9, #a5d6a7);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .hero-image i {
+      font-size: 11rem;
+      color: #1e3b1a;
+      opacity: 0.9;
+    }
+
+    /* секция "как работает" / инструкция */
+    .section-title {
+      text-align: center;
+      margin: 60px 0 30px;
+    }
+
+    .section-title h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #0a2e0f;
+    }
+
+    .section-title p {
+      color: #475569;
+      margin-top: 8px;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 28px;
+      margin: 40px 0;
+    }
+
+    .step-card {
+      background: var(--card-bg);
+      padding: 28px 22px;
+      border-radius: 28px;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      text-align: center;
+      border: 1px solid #f0f4e8;
+    }
+
+    .step-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .step-icon {
+      font-size: 2.6rem;
+      color: var(--primary);
+      background: #e8f5e9;
+      width: 70px;
+      height: 70px;
+      line-height: 70px;
+      border-radius: 20px;
+      margin: 0 auto 18px;
+    }
+
+    .step-card h3 {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .step-card p {
+      color: #475569;
+      font-size: 0.95rem;
+    }
+
+    /* блок болезни */
+    .diseases-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 28px;
+      margin: 40px 0 60px;
+    }
+
+    .disease-card {
+      background: white;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      border: 1px solid #eef2e6;
+    }
+
+    .disease-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .disease-img {
+      background: #e8f5e9;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.8rem;
+      color: #2e7d32;
+    }
+
+    .disease-content {
+      padding: 20px 22px 28px;
+    }
+
+    .disease-content h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .symptoms {
+      font-size: 0.9rem;
+      color: #4b5563;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+
+    .treatment {
+      background: #f9fdf6;
+      padding: 14px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      list-style: none;
+    }
+
+    .treatment li {
+      margin-bottom: 6px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .treatment i {
+      color: #2e7d32;
+      font-size: 0.8rem;
+    }
+
+    /* футер */
+    .footer {
+      background: #0a2e0f;
+      color: #d1e7d1;
+      padding: 48px 0 32px;
+      margin-top: 30px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 32px;
+      margin-bottom: 36px;
+    }
+
+    .footer-col h4 {
+      color: white;
+      font-weight: 600;
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+    }
+
+    .footer-col a {
+      display: block;
+      color: #bcd8b9;
+      text-decoration: none;
+      margin-bottom: 10px;
+      transition: 0.2s;
+    }
+
+    .footer-col a:hover {
+      color: white;
+      text-decoration: underline;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid #1e4620;
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 640px) {
+      .header .container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .nav-links {
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .hero-image {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="logo">
+        <i class="fas fa-leaf"></i> AgroScan Pro
+        <span>ITU-2-24</span>
+      </div>
+      <div class="nav-links">
+        <a href="#" class="active">Главная</a>
+        <a href="#">О нас</a>
+        <a href="#">Болезни</a>
+        <a href="#">Контакты</a>
+        <button class="btn"><i class="fas fa-camera"></i> Диагностика</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-text">
+          <div class="hero-badge"><i class="fas fa-robot"></i></div>
+          <h1><i class="fas fa-stethoscope"></i> Зелёный доктор</h1>
+          <p>Автоматизированная система анализа здоровья растений. Мы создаём умную систему, которая помогает определять болезни растений по изображениям. Она подсказывает, как ухаживать за растением, и постоянно обучается, чтобы становиться точнее.</p>
+          <button class="btn" style="padding: 14px 32px; font-size: 1rem;">
+            <i class="fas fa-search"></i> Диагностировать проблему
+          </button>
+          <p style="margin-top: 12px; font-size: 0.9rem; color: #475569;">
+            <i class="far fa-clock"></i> Предварительный просмотр · Анализ за считанные минуты
+          </p>
+        </div>
+        <div class="hero-image">
+          <i class="fas fa-seedling"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- Инструкция -->
+    <div class="container">
+      <div class="section-title">
+        <h2>Как это работает</h2>
+        <p>4 простых шага к здоровому растению</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-icon"><i class="fas fa-mobile-alt"></i></div>
+          <h3>1. Откройте приложение</h3>
+          <p>Загрузите анализ и выберите инструмент диагностики</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon"><i class="fas fa-images"></i></div>
+          <h3>2. Выберите изображение</h3>
+          <p>Загрузите чёткие фотографии листьев с разных ракурсов</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon"><i class="fas fa-brain"></i></div>
+          <h3>3. Мгновенный анализ</h3>
+          <p>Искусственный интеллект анализирует симптомы в реальном времени</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon"><i class="fas fa-clipboard-check"></i></div>
+          <h3>4. Результат и уход</h3>
+          <p>Получите рекомендации по лечению в зависимости от культуры</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Болезни -->
+    <div class="container">
+      <div class="section-title">
+        <h2>Распространённые болезни</h2>
+        <p>Определяем нарушения роста из-за грибков, бактерий и вирусов</p>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+          <input type="file" name="image">
+          <button type="submit">Отправить</button>
+        </form>
+      </div>
+      <div class="diseases-grid">
+        <!-- Мучнистая роса -->
+        <div class="disease-card">
+          <div class="disease-img"><i class="fas fa-snowflake"></i></div>
+          <div class="disease-content">
+            <h3>Мучнистая роса</h3>
+            <div class="symptoms"><i class="fas fa-exclamation-triangle" style="color:#e67e22;"></i> Признаки: белый «порошок» на листьях</div>
+            <ul class="treatment">
+              <li><i class="fas fa-check-circle"></i> Удалить поражённые листья</li>
+              <li><i class="fas fa-check-circle"></i> Обработать фунгицидом</li>
+              <li><i class="fas fa-check-circle"></i> Уменьшить влажность, проветривание</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Бактериальные пятна -->
+        <div class="disease-card">
+          <div class="disease-img"><i class="fas fa-droplet"></i></div>
+          <div class="disease-content">
+            <h3>Бактериальные пятна</h3>
+            <div class="symptoms"><i class="fas fa-exclamation-triangle" style="color:#e67e22;"></i> Признаки: водянистые или чёрные пятна</div>
+            <ul class="treatment">
+              <li><i class="fas fa-check-circle"></i> Удалить больные листья</li>
+              <li><i class="fas fa-check-circle"></i> Сократить полив</li>
+              <li><i class="fas fa-check-circle"></i> Антибактериальные препараты</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Ржавчина -->
+        <div class="disease-card">
+          <div class="disease-img"><i class="fas fa-fire"></i></div>
+          <div class="disease-content">
+            <h3>Ржавчина</h3>
+            <div class="symptoms"><i class="fas fa-exclamation-triangle" style="color:#e67e22;"></i> Признаки: оранжевые/коричневые пятна</div>
+            <ul class="treatment">
+              <li><i class="fas fa-check-circle"></i> Удалить заражённые листья</li>
+              <li><i class="fas fa-check-circle"></i> Обработать фунгицидом</li>
+              <li><i class="fas fa-check-circle"></i> Не опрыскивать листья слишком часто</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>AgroScan Pro</h4>
+          <p style="color:#bcd8b9;">Зелёный доктор — умная диагностика растений.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Навигация</h4>
+          <a href="#">Главная</a>
+          <a href="#">О нас</a>
+          <a href="#">Болезни растений</a>
+        </div>
+        <div class="footer-col">
+          <h4>Поддержка</h4>
+          <a href="#">Контакты</a>
+          <a href="#">Инструкция</a>
+        </div>
+        <div class="footer-col">
+          <h4>Правовая информация</h4>
+          <a href="#">Политика конфиденциальности</a>
+          <a href="#">Условия использования</a>
+          <a href="/detect">Перейти к распознаванию</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 AgroScan Pro · Все права защищены</span>
+        <span>Спасибо, что остаётесь с нами! 🌱</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
