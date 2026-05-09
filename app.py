@@ -204,7 +204,7 @@ def analyze_image():
 
         return jsonify({
             **diag,
-            "opencv_analysis": sgafe_opencv_result(cv_result),
+            "opencv_analysis": safe_opencv_result(cv_result),
         })
 
     except Exception as e:
