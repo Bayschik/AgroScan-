@@ -80,6 +80,8 @@ def safe_opencv_result(cv_result):
         "color_analysis":    color_safe,
         "texture_analysis":  texture_safe,
         "debug_images":      cv_result.get("debug_images", {}),
+        "is_plant":          cv_result.get("is_plant", True),
+        "plant_confidence":  cv_result.get("plant_confidence", 100),
     }
 
 
@@ -140,6 +142,8 @@ def diagnose():
         return jsonify({"error": "Server error"}), 500
 
 
+# ... (остальной код без изменений) ...
+
 # ── UPLOAD (multipart/form-data) ──────────────────────
 @app.route("/upload", methods=["POST"])
 def upload():
@@ -158,12 +162,110 @@ def upload():
     img_source = "data:image/jpeg;base64," + base64.b64encode(buf).decode("utf-8")
 
     cv_result = analyzer.analyze(img_source)
+    
     if "error" in cv_result:
-        return jsonify({"error": cv_result["error"]}), 500
+        return jsonify({"error": cv_result["error"]}), 400
+    
+    if not cv_result.get("is_plant", True):
+        return jsonify({
+            "error": "На изображении не обнаружено растение. Пожалуйста, загрузите фото растения.",
+            "plant_confidence": cv_result.get("plant_confidence", 0)
+        }), 400
 
     image_symptoms = cv_result.get("detected_symptoms", [])
     health_score   = cv_result.get("health_score")
+    
+    # Улучшенная проверка на здоровое растение
+    # Растение считается здоровым, если:
+    # 1. Скор здоровья >= 85
+    # 2. Нет обнаруженных симптомов
+    # 3. Доля здоровой зелени > 40%
+    green_ratio = cv_result.get("color_analysis", {}).get("healthy_green", {}).get("ratio", 0)
+    is_fully_healthy = (health_score >= 85 and len(image_symptoms) == 0 and green_ratio > 0.35)
+    
+    if is_fully_healthy:
+        return jsonify({
+            "diagnoses": [{
+                "id": "healthy",
+                "name": "Полностью здоровое растение",
+                "name_en": "Fully Healthy Plant", 
+                "severity": "none",
+                "confidence": min(99, health_score),
+                "description": "✅ Растение выглядит полностью здоровым! На листьях отсутствуют признаки заболеваний, вредителей или повреждений. Ваше растение в отличном состоянии.",
+                "matching_symptoms": [],
+                "recommendations": [
+                    "🌱 Продолжайте соблюдать регулярный режим полива",
+                    "☀️ Обеспечьте достаточное освещение для вашего растения",
+                    "💚 Проводите сезонные подкормки для поддержания здоровья",
+                    "🔍 Периодически осматривайте растение для раннего выявления проблем",
+                    "🧼 Содержите листья в чистоте, протирая от пыли"
+                ],
+                "prevention": [
+                    "Поддерживайте оптимальный микроклимат для вашего растения",
+                    "Не допускайте переувлажнения или пересыхания почвы",
+                    "Своевременно удаляйте старые или отмершие листья",
+                    "Используйте качественный грунт и дренаж"
+                ]
+            }],
+            "primary_diagnosis": {
+                "id": "healthy",
+                "name": "Полностью здоровое растение",
+                "name_en": "Fully Healthy Plant",
+                "severity": "none",
+                "confidence": min(99, health_score),
+                "description": "✅ Растение выглядит полностью здоровым! На листьях отсутствуют признаки заболеваний, вредителей или повреждений.",
+                "matching_symptoms": [],
+                "recommendations": [
+                    "Продолжайте соблюдать регулярный режим полива",
+                    "Обеспечьте достаточное освещение",
+                    "Проводите сезонные подкормки",
+                    "Периодически осматривайте растение"
+                ],
+                "prevention": []
+            },
+            "combined_symptoms": [],
+            "image_health_score": health_score,
+            "plant_name": request.form.get("plant_name", "Неизвестное растение"),
+            "is_fully_healthy": True,
+            "opencv_analysis": safe_opencv_result(cv_result),
+        })
+    
     diag = engine.diagnose(symptoms=[], image_symptoms=image_symptoms, image_score=health_score)
+    
+    # Если диагностика не нашла болезней, но есть небольшие отклонения
+    if not diag.get("diagnoses") and health_score >= 70:
+        return jsonify({
+            "diagnoses": [{
+                "id": "minor_issues",
+                "name": "Незначительные отклонения",
+                "name_en": "Minor Issues",
+                "severity": "low",
+                "confidence": 70,
+                "description": "Растение в целом здорово, но есть небольшие признаки, требующие внимания.",
+                "matching_symptoms": image_symptoms,
+                "recommendations": [
+                    "Проверьте режим полива и освещения",
+                    "Осмотрите растение на наличие вредителей",
+                    "При необходимости проведите профилактическую обработку",
+                ],
+                "prevention": [],
+            }],
+            "primary_diagnosis": {
+                "id": "minor_issues",
+                "name": "Незначительные отклонения",
+                "severity": "low",
+                "confidence": 70,
+                "description": "Растение в целом здорово, но есть небольшие признаки, требующие внимания.",
+                "matching_symptoms": image_symptoms,
+                "recommendations": [],
+                "prevention": []
+            },
+            "combined_symptoms": image_symptoms,
+            "image_health_score": health_score,
+            "plant_name": request.form.get("plant_name", "Неизвестное растение"),
+            "is_fully_healthy": False,
+            "opencv_analysis": safe_opencv_result(cv_result),
+        })
 
     return jsonify({
         "diagnoses":          diag.get("diagnoses", []),
@@ -171,6 +273,7 @@ def upload():
         "combined_symptoms":  diag.get("combined_symptoms", []),
         "image_health_score": health_score,
         "plant_name":         request.form.get("plant_name", "Неизвестное растение"),
+        "is_fully_healthy":   False,
         "opencv_analysis":    safe_opencv_result(cv_result),
     })
 
@@ -188,19 +291,71 @@ def analyze_image():
             return jsonify({"error": "Изображение не предоставлено"}), 400
 
         cv_result = analyzer.analyze(img_source)
+        
         if "error" in cv_result:
-            return jsonify({"error": cv_result["error"]}), 500
+            return jsonify({"error": cv_result["error"]}), 400
+        
+        if not cv_result.get("is_plant", True):
+            return jsonify({
+                "error": "На изображении не обнаружено растение. Пожалуйста, загрузите фото растения.",
+                "plant_confidence": cv_result.get("plant_confidence", 0)
+            }), 400
 
         image_symptoms = cv_result.get("detected_symptoms", [])
         health_score   = cv_result.get("health_score")
         valid_syms     = [s for s in symptoms if s in SYMPTOM_LIST]
+        green_ratio    = cv_result.get("color_analysis", {}).get("healthy_green", {}).get("ratio", 0)
 
-        diag = engine.diagnose(
-            symptoms=valid_syms,
-            image_symptoms=image_symptoms,
-            image_score=health_score
-        )
-        diag["plant_name"] = plant_name
+        # Проверка на здоровое растение
+        is_fully_healthy = (health_score >= 85 and len(image_symptoms) == 0 and 
+                           len(valid_syms) == 0 and green_ratio > 0.35)
+        
+        if is_fully_healthy:
+            diag = {
+                "diagnoses": [{
+                    "id": "healthy",
+                    "name": "Полностью здоровое растение",
+                    "name_en": "Fully Healthy Plant",
+                    "severity": "none",
+                    "confidence": min(99, health_score),
+                    "description": "✅ Растение выглядит полностью здоровым! На листьях отсутствуют признаки заболеваний, вредителей или повреждений. Ваше растение в отличном состоянии.",
+                    "matching_symptoms": [],
+                    "recommendations": [
+                        "🌱 Продолжайте соблюдать регулярный режим полива",
+                        "☀️ Обеспечьте достаточное освещение",
+                        "💚 Проводите сезонные подкормки",
+                        "🔍 Периодически осматривайте растение",
+                        "🧼 Содержите листья в чистоте"
+                    ],
+                    "prevention": [
+                        "Поддерживайте оптимальный микроклимат",
+                        "Не допускайте переувлажнения",
+                        "Своевременно удаляйте отмершие листья"
+                    ]
+                }],
+                "primary_diagnosis": {
+                    "id": "healthy",
+                    "name": "Полностью здоровое растение",
+                    "severity": "none",
+                    "confidence": min(99, health_score),
+                    "description": "✅ Растение полностью здорово!",
+                    "matching_symptoms": [],
+                    "recommendations": [],
+                    "prevention": []
+                },
+                "combined_symptoms": [],
+                "image_health_score": health_score,
+                "plant_name": plant_name,
+                "is_fully_healthy": True,
+            }
+        else:
+            diag = engine.diagnose(
+                symptoms=valid_syms,
+                image_symptoms=image_symptoms,
+                image_score=health_score
+            )
+            diag["plant_name"] = plant_name
+            diag["is_fully_healthy"] = False
 
         return jsonify({
             **diag,
