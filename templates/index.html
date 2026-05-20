@@ -32,6 +32,12 @@
     body {
       font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
       background-color: #f9fafb;
+      background-image: url("https://i.pinimg.com/736x/1c/f2/75/1cf275dbd0241dce5f7d8126511dc3b8.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      height: 50vh;
+      margin: 0;
       color: var(--text-dark);
       line-height: 1.6;
     }
@@ -507,7 +513,7 @@
     <section class="hero">
       <div class="container">
         <div class="hero-text">
-          <div class="hero-badge"><i class="fas fa-robot"></i> AI + OpenCV</div>
+          <div class="hero-badge"><i class="fas fa-robot"></i>OpenCV</div>
           <h1><i class="fas fa-stethoscope"></i> Зелёный доктор</h1>
           <p>Автоматизированная система анализа здоровья растений. Определяет болезни по фотографии с помощью компьютерного зрения и даёт рекомендации по лечению.</p>
           <button class="btn" onclick="openModal()" style="padding: 14px 32px; font-size: 1rem;">
@@ -527,7 +533,7 @@
       </div>
       <div class="steps-grid">
         <div class="step-card"><div class="step-icon"><i class="fas fa-mobile-alt"></i></div><h3>1. Загрузите фото</h3><p>Сделайте чёткий снимок листьев растения</p></div>
-        <div class="step-card"><div class="step-icon"><i class="fas fa-brain"></i></div><h3>2. AI анализ</h3><p>OpenCV анализирует цвет, текстуру и пятна</p></div>
+        <div class="step-card"><div class="step-icon"><i class="fas fa-brain"></i></div><h3>2. Анализ</h3><p>OpenCV анализирует цвет, текстуру и пятна</p></div>
         <div class="step-card"><div class="step-icon"><i class="fas fa-chart-line"></i></div><h3>3. Оценка здоровья</h3><p>Система определяет болезнь и степень поражения</p></div>
         <div class="step-card"><div class="step-icon"><i class="fas fa-clipboard-list"></i></div><h3>4. Лечение</h3><p>Получите detailed рекомендации по уходу</p></div>
       </div>
@@ -549,26 +555,26 @@
     <div class="modal-content">
       <span class="modal-close" onclick="closeModal()">&times;</span>
       <h2><i class="fas fa-camera"></i> Диагностика растения</h2>
-      
+
       <div class="upload-area" id="uploadArea">
         <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #2e7d32;"></i>
         <p>Нажмите или перетащите фотографию</p>
         <small>Поддерживаются: JPG, PNG, JPEG, WEBP</small>
         <input type="file" id="fileInput" accept="image/*" style="display: none;">
       </div>
-      
+
       <div id="imagePreview"></div>
-      
+
       <h3>Дополнительные симптомы (необязательно)</h3>
       <div class="symptoms-selector" id="symptomsList">
         <div class="spinner"></div>
       </div>
-      
+
       <label>🌿 Название растения:</label>
       <input type="text" id="plantName" placeholder="Например: Роза, Томат, Монстера..." style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px;">
-      
+
       <button class="btn" onclick="analyzeImage()" style="width: 100%; justify-content: center;"><i class="fas fa-microscope"></i> Анализировать</button>
-      
+
       <div id="diagnosticResult"></div>
     </div>
   </div>
@@ -659,10 +665,10 @@
         }
         const resultDiv = document.getElementById('diagnosticResult');
         resultDiv.innerHTML = '<div class="spinner"></div><p style="text-align:center">Анализ изображения через OpenCV...</p>';
-        
+
         const symptoms = Array.from(selectedSymptoms);
         const plantName = document.getElementById('plantName').value || 'Неизвестное растение';
-        
+
         try {
             const response = await fetch('/api/analyze-image', {
                 method: 'POST',
